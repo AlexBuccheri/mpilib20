@@ -18,8 +18,8 @@ module mpilib20_init_finalise
      type(MPI_comm)  :: comm         !> MPI communicator (integer in older bindings)
      integer         :: process      !> Process id (rank)
      integer         :: n_processes  !> Total number of processes
-     type(MPI_Group) :: group        !> Group id
-     integer         :: group_size   !> Processes in group
+     type(MPI_Group) :: group        !> Group id (integer in older bindings)
+     integer         :: group_size   !> Number of processes in group
      integer         :: ierror       !> Error code
      
    contains
@@ -65,8 +65,7 @@ contains
   !> MPI_THREAD_MULTIPLE:   If the process is multithreaded, multiple threads may call MPI at once
   !>                        with no restrictions.
   subroutine mpilib20_init_thread(mpi_env, required)
-    use mpi_f08, only: MPI_COMM_WORLD, MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, &
-                       MPI_COMM_DUP, &
+    use mpi_f08, only: MPI_COMM_WORLD, MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, MPI_COMM_DUP, &
                        MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, &
                        MPI_THREAD_MULTIPLE
 
@@ -116,8 +115,7 @@ contains
   !> \brief Initialise an instance of the MPI environment
   !>
   !> param[inout]  self  An instance of the MPI environment
-  !> param[in]     required_threading  Required level of threadig support
-  !> => mpi_env_type%init
+  !> param[in]     required_threading  Required level of threading support
   subroutine init_mpi_env(self, required_threading)
     use mpi_f08, only:  MPI_COMM_RANK, MPI_COMM_SIZE, MPI_GROUP_SIZE
     class(mpi_env_type), intent(inout) :: self 
@@ -131,6 +129,7 @@ contains
 
     call MPI_COMM_RANK(self%comm,   self%process ,    self%ierror)
     call MPI_COMM_SIZE(self%comm,   self%n_processes, self%ierror)
+    call MPI_COMM_GROUP(self%comm,  self%group,       self%ierror)
     call MPI_GROUP_SIZE(self%group, self%group_size,  self%ierror)
     
   end subroutine init_mpi_env

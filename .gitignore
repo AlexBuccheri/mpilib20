@@ -1,1 +1,2 @@
-builddir/
+# Mac custom attributes file
+.DS_Store  
