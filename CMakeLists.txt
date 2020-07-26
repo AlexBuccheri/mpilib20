@@ -7,6 +7,8 @@ project(mpilib20 VERSION 0.1.0
 # Name of library
 set(TARGET mpilib20)
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
 # Defines build type 
 include(cmake/StandardProjectSettings.cmake)
 
@@ -36,10 +38,10 @@ set(SOURCE_CODE
    src/mpilib20_init_finalise.F90
 )
 
-# Can't find library at linking stage if shared
-add_library(${TARGET} ${SOURCE_CODE})
-
+add_library(${TARGET} SHARED ${SOURCE_CODE})
+message("Not convinced by setting flags in this way ... or if it is working - may scrap")
 set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "${project_warnings}")
+set_target_properties(${TARGET} PROPERTIES VERSION 1 SOVERSION 0)
 target_link_libraries(${TARGET} ${LIBS})
 
 # TODO(Alex) Add installation 
