@@ -1,8 +1,10 @@
-include_directories("${CMAKE_BINARY_DIR}/src")
+include_directories("${CMAKE_SOURCE_DIR}/src")
+
+set(DIR "src")
 
 set(SOURCE_CODE
-   mpilib20.F90
-   mpilib20_init_finalise.F90
-)
+   ${DIR}/mpilib20.F90
+   ${DIR}/mpilib20_init_finalise.F90
+   PARENT_SCOPE
+   )
 
-add_library(${TARGET} ${SOURCE_CODE})

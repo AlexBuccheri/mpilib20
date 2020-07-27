@@ -29,20 +29,26 @@ include(cmake/mpi.cmake)
 
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 set(CMAKE_Fortran_BIN_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
+#set(CMAKE_Fortran_LIB_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
-# Ignore CMakeLists in src for now
-#add_subdirectory(src)
-
-set(SOURCE_CODE
-   src/mpilib20.F90
-   src/mpilib20_init_finalise.F90
-)
+add_subdirectory(src)
 
 add_library(${TARGET} SHARED ${SOURCE_CODE})
-message("Not convinced by setting flags in this way ... or if it is working - may scrap")
-set_target_properties(${TARGET} PROPERTIES LINK_FLAGS "${project_warnings}")
+#add_library(${TARGET}-static STATIC ${SOURCE_CODE})
+
+message("Make sure project_warnings is set properly")
+#LINK_FLAGS "${project_warnings}"
 set_target_properties(${TARGET} PROPERTIES VERSION 1 SOVERSION 0)
 target_link_libraries(${TARGET} ${LIBS})
+
+#set_target_properties(${TARGET}-static
+#                      PROPERTIES
+#		      VERSION 1
+#		      ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_Fortran_LIB_DIRECTORY})
+#target_link_libraries(${TARGET}-static ${LIBS})
+
+
+
 
 # TODO(Alex) Add installation 
 #set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
