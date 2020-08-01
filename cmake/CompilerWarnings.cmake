@@ -20,13 +20,14 @@
       -Wfrontend-loop-interchange
       -pedantic)
 
-  #TODO(Alex) Set Intel warnings
+   #TODO(Alex) Set Intel warnings
 
    option(WARNINGS_AS_ERRORS "Treat compiler warnings as error" FALSE)
    if (WARNINGS_AS_ERRORS)
      set(GCC_WARNINGS ${GCC_WARNINGS} -Werror)
    endif()
 
+   # List to string 
    string(REPLACE ";" " " GCC_WARNINGS "${GCC_WARNINGS}")
 
    # TODO(Alex) Add profiling, debug/bounds checks, symbols, etc 

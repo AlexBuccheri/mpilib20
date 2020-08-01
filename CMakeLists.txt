@@ -24,24 +24,25 @@ include(cmake/mpi.cmake)
 
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 set(CMAKE_Fortran_BIN_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
-#set(CMAKE_Fortran_LIB_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(CMAKE_Fortran_LIB_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
 
 add_subdirectory(src)
 
 add_library(${TARGET} SHARED ${SOURCE_CODE})
-#add_library(${TARGET}-static STATIC ${SOURCE_CODE})
+add_library(${TARGET}-static STATIC ${SOURCE_CODE})
 
-set_target_properties(${TARGET} PROPERTIES VERSION 1 SOVERSION 0)
+set_target_properties(${TARGET}
+                      PROPERTIES
+		      VERSION 1 SOVERSION 0
+		      LIBRARY_OUTPUT_DIRECTORY ${CMAKE_Fortran_LIB_DIRECTORY})
 target_link_libraries(${TARGET} ${LIBS})
 
+set_target_properties(${TARGET}-static
+                      PROPERTIES
+		      VERSION 1
+		      ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_Fortran_LIB_DIRECTORY})
+target_link_libraries(${TARGET}-static ${LIBS})
 
-
-
-#set_target_properties(${TARGET}-static
-#                      PROPERTIES
-#		      VERSION 1
-#		      ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_Fortran_LIB_DIRECTORY})
-#target_link_libraries(${TARGET}-static ${LIBS})
 
 # TODO(Alex) Add installation 
 #set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
