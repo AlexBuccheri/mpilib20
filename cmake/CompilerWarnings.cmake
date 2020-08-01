@@ -1,6 +1,4 @@
 
-function(set_project_warnings project_name)
-  option(WARNINGS_AS_ERRORS "Treat compiler warnings as error" FALSE)
 
   # See: https://gcc.gnu.org/onlinedocs/gfortran/Option-Summary.html
   # TODO(Alex) Add description for each
@@ -22,17 +20,23 @@ function(set_project_warnings project_name)
       -Wfrontend-loop-interchange
       -pedantic)
 
+  #TODO(Alex) Set Intel warnings
+
+   option(WARNINGS_AS_ERRORS "Treat compiler warnings as error" FALSE)
    if (WARNINGS_AS_ERRORS)
      set(GCC_WARNINGS ${GCC_WARNINGS} -Werror)
    endif()
 
-   # Add Intel support
+   string(REPLACE ";" " " GCC_WARNINGS "${GCC_WARNINGS}")
 
-   if (${CMAKE_Fortran_COMPILER_ID} STREQUAL "GNU")
-     set(PROJECT_WARNINGS ${GCC_WARNINGS})
+   # TODO(Alex) Add profiling, debug/bounds checks, symbols, etc 
+   if (CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
+        set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${GCC_WARNINGS}")
+        set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${GCC_WARNINGS}")
+	set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${GCC_WARNINGS}")
+
+   #TODO(Alex) Add Intel support
    else()
      message(WARNING "Compiler warnings not set")
    endif()    
 
-   target_compile_options(${project_name} INTERFACE ${PROJECT_WARNINGS})
-endfunction()

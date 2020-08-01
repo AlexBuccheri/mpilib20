@@ -1,9 +1,9 @@
 # Check compiler is supported
-if(${CMAKE_Fortran_COMPILER_ID} STREQUAL "GNU")
+if(CMAKE_Fortran_COMPILER_ID MATCHES "GNU")
   if (NOT ${CMAKE_Fortran_COMPILER_VERSION} VERSION_GREATER "5.9.9" )
     message(FATAL_ERROR "The minimum supported version of GCC is 6.0.0")
   endif()
-elseif(${CMAKE_Fortran_COMPILER_ID} STREQUAL "Intel")
+elseif(CMAKE_Fortran_COMPILER_ID MATCHES "Intel")
   #TODO(Alex) Add minimum version for Intel 
 endif()
 
