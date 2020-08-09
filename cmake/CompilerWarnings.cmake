@@ -1,25 +1,23 @@
 # Add compiler warnings to project 
-# TODO(Alex) Add description for each GNU warning 
 
-  # See: https://gcc.gnu.org/onlinedocs/gfortran/Option-Summary.html
   set(GCC_WARNINGS
       -Wall  # Contains aliasing, apersand, conversion, surprising, binding-type,
              # intrinsics-std, tabs, intrinsic-shadow, line-truncation,
 	     # target-lifetime, integer-division, real-q-constant, unused and undefined-do-loop
       -Warray-bounds  
-      -Wcharacter-truncation 
+      -Wcharacter-truncation # Warn when a character assignment will truncate the assigned string.
       -Wfunction-elimination # Warn if any calls to impure functions are eliminated by the optimizations
                              # enabled by the -ffrontend-optimize option
-      -Wimplicit-interface  
-      -Wimplicit-procedure 
-      -Wuse-without-only  
-      -Wno-align-commons  
-      -Wno-overwrite-recursive
-      -Wunderflow 
-      -Wrealloc-lhs 
-      -Wrealloc-lhs-all 
-      -Wfrontend-loop-interchange
-      -pedantic)
+      -Wimplicit-interface   # Warn if a procedure is called without an explicit interface. 
+      -Wimplicit-procedure   # Warn if a procedure is called that has neither an explicit interface nor has been declared as EXTERNAL.
+      -Wuse-without-only     # Warn if modules are used without only keyword
+      -Wunderflow            # Produce a warning when numerical constant expressions are encountered, which yield an UNDERFLOW during compilation.
+      -Wrealloc-lhs          # I assume this warns if the shape of the L.H.S. and R.H.S of an allocatable assignment differ.
+                             # Fortran 2003: The L.H.S.is assumed to be allocated with the correct shape to hold the right-hand side. If it is not, incorrect behavior will occu. Intel's default is when the L.H.S of an assignment is an allocatable object, it should be reallocated to the shape of the right-hand side of the assignment before the assignment occurs. This is the current Fortran Standard definition. This feature may cause extra overhead at run time.
+      -Wrealloc-lhs-all      # 
+      -Wfrontend-loop-interchange # Warn when using -ffrontend-loop-interchange for performing loop interchanges.
+      -pedantic)    # Issue warnings for uses of extensions to Fortran i.e. C's #include
+                    # This should be used in conjunction with -std=f95 to f2018
 
    # See https://software.intel.com/content/www/us/en/develop/documentation/fortran-compiler-developer-guide-and-reference/top/compiler-reference/compiler-options/compiler-option-details/compiler-diagnostic-options/warn.html
    set(INTEL_WARNINGS
@@ -45,6 +43,4 @@
             ${CMAKE_Fortran_COMPILER_ID}")
    endif()    
 
-   set(CMAKE_Fortran_FLAGS_DEBUG "${CMAKE_Fortran_FLAGS_DEBUG} ${COMPILER_WARNINGS}")
-   set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${COMPILER_WARNINGS}")
-   set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} ${COMPILER_WARNINGS}")
+  set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${COMPILER_WARNINGS}")
