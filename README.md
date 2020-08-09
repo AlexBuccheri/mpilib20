@@ -49,9 +49,14 @@ A simple test code is present in ROOT/test/init to check building and linking. T
 
 ## Bugs/To Dos
 
+### CMake
 * CMake still installs to .../include/modules rather than .../include
 * `FFLAGS` option should replace the defaults, not append them 
 * All Cmake options require documenting for the user
 * Intel requires testing
 * `WARNINGS_AS_ERRORS = True` fails for GCC
+* Add doxygen support
+
+### Meson
 * meson needs fixing and extending 
+
