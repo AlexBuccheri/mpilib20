@@ -37,8 +37,19 @@ After configuring CMake, *MPILib20* can be built and installed with:
 `make install`
 
 
+### Check Compilation
+
+A simple test code is present in ROOT/test/init to check building and linking. To run, modify init/CMakeLists.txt ROOT to where the library has been installed, then in the terminal:
+
+`mkdir build && cd build`    
+`make`    
+`mpirun -np 2 ./test.exe`
+
+
+
 ## Bugs/To Dos
 
+* CMake still installs to .../include/modules rather than .../include
 * `FFLAGS` option should replace the defaults, not append them 
 * All Cmake options require documenting for the user
 * Intel requires testing
