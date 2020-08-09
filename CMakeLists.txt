@@ -23,7 +23,8 @@ include(cmake/CompilerWarnings.cmake)
 # Find MPI. Assigned to LIBS
 include(cmake/mpi.cmake)
 
-# TODO(Alex) Add Doxygen and Ford support
+# TODO(Alex)
+# Add Doxygen and Ford support
 # Add Ctest support
 # Add unit testing support 
 
@@ -31,6 +32,8 @@ include(cmake/mpi.cmake)
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
 set(CMAKE_Fortran_BIN_DIRECTORY ${PROJECT_BINARY_DIR}/bin)
 set(CMAKE_Fortran_LIB_DIRECTORY ${PROJECT_BINARY_DIR}/lib)
+set(default_install_prefix "${PROJECT_BINARY_DIR}/mpilib20_library")
+
 
 # Create static and shared libraries 
 add_subdirectory(src)
@@ -51,10 +54,28 @@ set_target_properties(${TARGET}-static
 target_link_libraries(${TARGET}-static ${LIBS})
 
 
-# TODO(Alex) Add installation 
-# install( ADD ARGS)
-# include(GNUInstallDirs)
-#set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
-#set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/${CMAKE_INSTALL_BINDIR})
+# Install libraries and modules
+# Not sure when this is required: include(GNUInstallDirs)
+
+set(CMAKE_INSTALL_PREFIX ${default_install_prefix} CACHE STRING
+    "Choose the installation directory; by default it installs in ${default_install_prefix}."
+     FORCE)
+
+# No need to specify "${CMAKE_INSTALL_PREFIX}/lib", 
+# install() will concatenate CMAKE_INSTALL_PREFIX and lib 
+install(TARGETS ${TARGET} ${TARGET}-static
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
+
+# If one specifies "${CMAKE_INSTALL_PREFIX}/include" instead of include
+# the module install directory will erroneously be CMAKE_INSTALL_PREFIX/include/modules 
+# No need to use GLOB 
+install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}
+        DESTINATION include)
+
+
+
+
+
 
 
