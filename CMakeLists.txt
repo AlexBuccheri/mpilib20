@@ -58,9 +58,11 @@ target_link_libraries(${TARGET}-static ${LIBS})
 # Install libraries and modules
 # Not sure when this is required: include(GNUInstallDirs)
 
-set(CMAKE_INSTALL_PREFIX ${default_install_prefix} CACHE STRING
-    "Choose the installation directory; by default it installs in ${default_install_prefix}."
-     FORCE)
+if (NOT CMAKE_INSTALL_PREFIX) 
+   set(CMAKE_INSTALL_PREFIX ${default_install_prefix} CACHE STRING
+       "Choose the installation directory; by default it installs in ${default_install_prefix}."
+        FORCE)
+endif()
 
 # No need to specify "${CMAKE_INSTALL_PREFIX}/lib", 
 # install() will concatenate CMAKE_INSTALL_PREFIX and lib 
