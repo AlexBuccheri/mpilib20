@@ -27,6 +27,7 @@ include(cmake/mpi.cmake)
 # Add Doxygen and Ford support
 # Add Ctest support
 # Add unit testing support 
+# Create pkg-config 
 
 # Set output folders for exe, libs and modules
 set(CMAKE_Fortran_MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/modules)
