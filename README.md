@@ -4,6 +4,14 @@ This library provides both free subroutine and object-orientated bindings to MPI
 possible and avoiding the use of non-standard preprocessing. 
 The plan is to support both CMake and Meson build systems, and incorporate a unit testing framework. 
 
+## Project Goals
+* Produce a decent set of fortran wrappers for MPI that can be used in subsequent projects
+* Test bed for writing better CMake and learning meson
+* Explore both unit test and app test frameworks for MPI applications
+* Provide a means of reusing Alex's standalone MPI tests 
+* Provide a home for more exotic communicator splitting and topology wrappers
+* Get Max into MPI 
+
 
 ## Building with CMake
 
