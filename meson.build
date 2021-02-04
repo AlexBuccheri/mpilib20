@@ -5,4 +5,4 @@ subdir('src') # add src files to src variable
 
 mpi = dependency('openMP', language: 'fortran')
 
-executable('mpilib20', src, dependencies : mpi)
+library('mpilib20', src, dependencies : mpi)
