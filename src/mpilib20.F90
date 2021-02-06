@@ -2,11 +2,10 @@
 !>
 !> All library routines should use the original MPI
 !> subroutine names, with the mpi prefix replaced with mpilib20 
-!
-! TODO(Alex) Think about how to correctly handle errors
 
+!> Exposure library types and subroutines 
 module mpilib20
-  use mpilib20_init_finalise
+  use mpilib20_init_finalise, only: mpi_env_type, mpilib20_init, mpilib20_init_thread, mpilib20_finalize
 
-  
+  ! TODO Add preprocessing for serial overloads here
 end module mpilib20
