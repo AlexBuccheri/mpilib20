@@ -6,13 +6,15 @@
 
 module mpilib20_init_finalise
   use, intrinsic :: iso_fortran_env, only: error_unit
-  use mpi_f08, only: MPI_comm, MPI_Group
+  ! TODO(ALex) Use a better name for this module 
+  use mpi_overload_set, only: MPI_comm, MPI_Group
+
   implicit none
   private 
 
   !> Process designated as master/root 
   integer, public, parameter :: root_id = 0
-  
+
   !> MPI environment type
   type, public :: mpi_env_type
      type(MPI_comm)  :: comm         !> MPI communicator (integer in older bindings)
@@ -40,7 +42,8 @@ contains
   !>
   !> \param[input]  mpi_env  Instance of the MPI environment
   subroutine mpilib20_init(mpi_env)
-    use mpi_f08, only: MPI_COMM_WORLD, MPI_INIT, MPI_COMM_DUP
+    ! todo(alex) use my wrapper
+    !use mpi_f08, only: MPI_COMM_WORLD, MPI_INIT, MPI_COMM_DUP
     
     type(mpi_env_type), intent(inout) :: mpi_env
 
@@ -65,6 +68,7 @@ contains
   !> MPI_THREAD_MULTIPLE:   If the process is multithreaded, multiple threads may call MPI at once
   !>                        with no restrictions.
   subroutine mpilib20_init_thread(mpi_env, required)
+    ! todo(alex) move to overload set
     use mpi_f08, only: MPI_COMM_WORLD, MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, MPI_COMM_DUP, &
                        MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, &
                        MPI_THREAD_MULTIPLE
@@ -102,22 +106,24 @@ contains
   !>
   !> \param[inout]  mpi_env   Instance of the MPI environment
   subroutine mpilib20_finalize(mpi_env)
+    ! todo(alex) move to overload set
     use mpi_f08, only: MPI_FINALIZE
     type(mpi_env_type), intent(inout) :: mpi_env
     call MPI_FINALIZE(mpi_env%ierror)
   end subroutine mpilib20_finalize
 
   
-  !---------------
-  ! Methods
-  !---------------
+  !---------------------------------
+  ! Type-bound Procedures (methods)
+  !---------------------------------
 
   !> \brief Initialise an instance of the MPI environment
   !>
   !> param[inout]  self  An instance of the MPI environment
   !> param[in]     required_threading  Required level of threading support
   subroutine init_mpi_env(self, required_threading)
-    use mpi_f08, only:  MPI_COMM_RANK, MPI_COMM_SIZE, MPI_GROUP_SIZE
+    ! todo(alex) move to overload set
+    !use mpi_f08, only:  MPI_COMM_RANK, MPI_COMM_SIZE, MPI_GROUP_SIZE
     class(mpi_env_type), intent(inout) :: self 
     integer, optional,   intent(in)    :: required_threading
 
@@ -132,6 +138,8 @@ contains
     call MPI_COMM_GROUP(self%comm,  self%group,       self%ierror)
     call MPI_GROUP_SIZE(self%group, self%group_size,  self%ierror)
     
+    !TODO(Alex) Add duplication of communicator 
+
   end subroutine init_mpi_env
 
   

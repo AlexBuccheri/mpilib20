@@ -5,8 +5,12 @@
 !
 ! TODO(Alex) Think about how to correctly handle errors
 
+!> Expose library routines to callers via one module 
 module mpilib20
-  use mpilib20_init_finalise
+  use mpilib20_init_finalise, only: mpi_env_type, init_mpi_env, finalise_mpi_env
+
+
+  
 
   
 end module mpilib20
