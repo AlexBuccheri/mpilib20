@@ -21,21 +21,20 @@ contains
     !>
     !> @todo Note, this kills ALL mpi processes. One may not want to do this 
     !> if the communicator has been split
+    !> @todo Will need to preprocess for SERIAL 
     subroutine terminate()
-#ifdef MPI
         use mpi_bindings, only: MPI_COMM_WORLD, MPI_ABORT
         !> Dummy MPI error integer
         integer :: ierr 
         call MPI_ABORT(MPI_COMM_WORLD, error_code_logical, ierr) 
-#else
-        stop error_code_logical
-#endif        
+        !stop error_code_logical
     end subroutine terminate
 
     !> Assert if a logical condition is true
     !>
     !> If not compiled in DEBUG mode, the compiler is smart enough
-    !> to remove the routine, which will be empty (i.e. no overhead)        
+    !> to remove the routine, which will be empty (i.e. no overhead) 
+    !> @todo consider passing mpi_env to this routine (or overload)       
     subroutine assert_true(logical_condition, message)
         !> Condition to test
         logical, intent(in) :: logical_condition

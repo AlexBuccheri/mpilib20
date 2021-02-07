@@ -7,6 +7,7 @@ module mpi_bindings
 
     ! Default mpi bindings 
     #ifdef MPI08 then
+        ! TODO MIght be easier to get rid of the use statement
         use mpi_f08, only:   &
 
             ! Routines
@@ -44,6 +45,7 @@ module mpi_bindings
 
     ! Support for older mpi bindings     
     #else 
+        ! TODO MIght be easier to get rid of the use statement
         use mpi, only:  &
 
              ! Routines
@@ -68,18 +70,58 @@ module mpi_bindings
 
         ! Derived types that emulate mpi_f08 types
         ! See: https://github.com/hpc/cce-mpi-openmpi-1.7.1/blob/master/ompi/mpi/fortran/use-mpi-f08-desc/mpi-f08.f90
+        
+        ! Copy all data types from here
+        ! https://github.com/hpc/cce-mpi-openmpi-1.7.1/blob/master/ompi/mpi/fortran/use-mpi-f08-desc/mpi-f08-types.f90
 
         ! TODO Document each type 
         type MPI_comm
             integer :: VALUE 
         end type 
+        type :: MPI_Datatype
+            integer :: MPI_VAL
+        end type MPI_Datatype
 
-        type MPI_Group
-            ! CHECK ME
-            integer :: VALUE 
-        end type 
+        type :: MPI_Errhandler
+            integer :: MPI_VAL
+        end type MPI_Errhandler
 
-        ! TODO Add all derived types 
+        type :: MPI_File
+           integer :: MPI_VAL
+        end type MPI_File
+     
+        type:: MPI_Group
+           integer :: MPI_VAL
+        end type MPI_Group
+     
+        type :: MPI_Info
+           integer :: MPI_VAL
+        end type MPI_Info
+     
+        type :: MPI_Message
+           integer :: MPI_VAL
+        end type MPI_Message
+     
+        type :: MPI_Op
+           integer :: MPI_VAL
+        end type MPI_Op
+     
+        type :: MPI_Request
+           integer :: MPI_VAL
+        end type MPI_Request
+     
+        type :: MPI_Win
+           integer :: MPI_VAL
+        end type MPI_Win
+     
+        type :: MPI_Status
+           integer :: MPI_SOURCE
+           integer :: MPI_TAG
+           integer :: MPI_ERROR
+           ! TODO decide how to deal with these:
+           !integer(C_INT),    private :: c_cancelled
+           !integer(C_SIZE_T), private :: c_count
+        end type MPI_Status
 
     #endif 
 
