@@ -4,7 +4,7 @@
 !>  to be used as free subroutines.
 module mpilib20_init_finalise
   use, intrinsic :: iso_fortran_env, only: error_unit
-  use mpi_bindings, only: MPI_comm, MPI_Group
+  use mpi_bindings, only : MPI_Comm, MPI_Group
   implicit none
   private 
 
@@ -14,7 +14,7 @@ module mpilib20_init_finalise
   ! TODO. Add get and set 
   !> MPI environment type
   type, public :: mpi_env_type
-     type(MPI_comm)  :: comm         !! MPI communicator (integer in older bindings)
+     type(MPI_Comm)  :: comm         !! MPI communicator (integer in older bindings)
      integer         :: process      !! Process id (rank)
      integer         :: n_processes  !! Total number of processes
      type(MPI_Group) :: group        !! Group id (integer in older bindings)
