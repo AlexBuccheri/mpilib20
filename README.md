@@ -57,6 +57,66 @@ A simple test code is present in ROOT/test/init to check building and linking. T
 
 ## Bugs/To Dos
 
+General TODOS
+ * Update CMake to reflect changes
+ * Add ubnit testing framework to CMake 
+ * Add make docs with FORD to cmake 
+ * Document all existing routines with FORD
+ * Write wrappers for routines listed below
+ * Provide API for mpi_f08 and mpi bindings 
+ * Allow OO and free-function API => the OO functions just wrap the free functions
+ * Start on serial wrappers 
+ * The mpi types we're writing should probably be protected, such thay the data can 
+   be read but only modified by methods of the type:
+   * Add get and set 
+ * Start adding asserts into routines 
+ 
+Future
+ * Implement communicator splitting 
+ * Implement cartesian comms splitting
+
+TODOS(Alex)
+ * Set up MPI unt test framework and write an example unit test
+ * Take allgatherv and allscatterv routines that I wrote in the past. Reimplement here, but do some more cleanly 
+
+TODOS(Max)
+ * higher-level routines to perform send and receives 
+ * Other things he'd like to take 
+ 
+
+## Directory structure
+errors_warnings
+	asserts.F90
+	errors_warnings.f90	
+constants
+	May not need
+routines:
+    each type and wrapped routine
+mpi_bindings:
+   Wrappers for when mpif08 is not available 
+
+unit_tests
+    Only test via the OO. That way we test the OO API and the underlying wrappers 	
+
+##  Routines to Wrap
+mpi_abort
+mpi_barrier
+mpi_wait
+mpi_allreduce: Needs to be overloaded for integer, sp, dp, logical, character
+               scalars and vectors
+mpi_bcast               
+mpi_send
+mpi_recv
+mpi_irecv
+mpi_scatter and v
+mpi_gather  and v
+mpi_allgather and v
+mpi_allscatter and v
+
+comm splitting stuff
+Probably more 
+
+
 ### CMake
 * CMake still installs to .../include/modules rather than .../include
 * `FFLAGS` option should replace the defaults, not append them 
