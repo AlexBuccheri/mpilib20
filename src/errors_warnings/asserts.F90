@@ -52,9 +52,10 @@ contains
 #else
         !> Optional message for termination
         character(len=*), intent(inout), optional :: message
-        ! Peform a 'nothing' operation so Wunused-dummy-argument doesn't complain
-        ! in release mode. Fortran needs C++17's [[maybe_unused]] attribute
-        ! TODO(Alex) Consider whether the overhead is worth silencing the compiler warning
+        ! Return prior to evaluating anything
+        return
+        ! Peform a 'nothing' operation after return so Wunused-dummy-argument doesn't
+        ! complain in release mode. Fortran needs C++17's [[maybe_unused]] attribute.
         message = merge(message, message, logical_condition)
 #endif
 
