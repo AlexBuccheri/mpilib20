@@ -40,7 +40,7 @@ contains
         logical, intent(in) :: logical_condition
         !> Optional message for termination
         character(len=*), intent(in), optional :: message
-#ifdef USE_ASSERT
+#ifdef DEBUG
         if (.not. logical_condition) then
             if (present(message)) then
                 write (error_unit, '(/,1x,a)') trim(adjustl(message))

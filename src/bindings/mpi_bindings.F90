@@ -7,7 +7,7 @@ module mpi_bindings
 
     ! Default mpi bindings 
 #ifdef MPI08
-        ! TODO MIght be easier to get rid of the use statement
+        ! TODO Might be easier to get rid of the use statement
         use mpi_f08, only:   &
 
             ! Routines
@@ -41,7 +41,7 @@ module mpi_bindings
             MPI_Status
 
         implicit none
-        public 
+        public
 
     ! Support for older mpi bindings     
 #else 
