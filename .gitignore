@@ -1,2 +1,6 @@
 # Mac custom attributes file
 .DS_Store  
+
+# IntelliJ
+.idea/
+cmake-build-*/
