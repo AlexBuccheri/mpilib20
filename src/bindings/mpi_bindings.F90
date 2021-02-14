@@ -19,6 +19,7 @@ module mpi_bindings
             MPI_FINALIZE,    &
             MPI_COMM_SIZE,   &
             MPI_GROUP_SIZE,  &
+            MPI_REDUCE,      &
 
             ! Data types  
             MPI_COMM_WORLD,        &
@@ -26,6 +27,7 @@ module mpi_bindings
             MPI_THREAD_FUNNELED,   &
             MPI_THREAD_SERIALIZED, &
             MPI_THREAD_MULTIPLE,   &
+            MPI_INTEGER,           &
 
             ! Derived types 
             MPI_Comm,          &
@@ -57,13 +59,15 @@ module mpi_bindings
              MPI_FINALIZE,    &
              MPI_COMM_SIZE,   &
              MPI_GROUP_SIZE,  &
+             MPI_REDUCE,      &
      
              ! Data types  
-             MPI_COMM_WORLD, &
-             MPI_THREAD_SINGLE, &
-             MPI_THREAD_FUNNELED, &
+             MPI_COMM_WORLD,        &
+             MPI_THREAD_SINGLE,     &
+             MPI_THREAD_FUNNELED,   &
              MPI_THREAD_SERIALIZED, &
-             MPI_THREAD_MULTIPLE
+             MPI_THREAD_MULTIPLE,   &
+            MPI_INTEGER
   
         implicit none
         public 
