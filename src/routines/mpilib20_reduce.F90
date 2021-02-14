@@ -12,6 +12,8 @@ module mpilib20_reduce_m
     private
 
     interface mpilib20_reduce
+        module procedure mpilib20_reduce_int_scalar
+        module procedure mpilib20_reduce_int_vec
     end interface
     
     public :: mpilib20_REDUCE
