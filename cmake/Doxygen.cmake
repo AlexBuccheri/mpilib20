@@ -1,3 +1,4 @@
+# TODO(Alex) Replace with FORD
 function(enable_doxygen)
   option(ENABLE_DOXYGEN "Enable doxygen" OFF)
   if (ENABLE_DOXYGEN)

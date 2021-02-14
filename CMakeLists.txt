@@ -54,6 +54,8 @@ set_target_properties(${TARGET}-static
 		      ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_Fortran_LIB_DIRECTORY})
 target_link_libraries(${TARGET}-static ${LIBS})
 
+# Set fortran preprocessor variables 
+include(cmake/PreprocessorSettings.cmake)
 
 # Install libraries and modules
 # Not sure when this is required: include(GNUInstallDirs)

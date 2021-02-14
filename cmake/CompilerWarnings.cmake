@@ -8,8 +8,8 @@
       -Wcharacter-truncation # Warn when a character assignment will truncate the assigned string.
       -Wfunction-elimination # Warn if any calls to impure functions are eliminated by the optimizations
                              # enabled by the -ffrontend-optimize option
-      -Wimplicit-interface   # Warn if a procedure is called without an explicit interface. 
-      -Wimplicit-procedure   # Warn if a procedure is called that has neither an explicit interface nor has been declared as EXTERNAL.
+      #-Wimplicit-interface   # Warn if a procedure is called without an explicit interface.
+      #-Wimplicit-procedure   # Warn if a procedure is called that has neither an explicit interface nor has been declared as EXTERNAL.
       -Wuse-without-only     # Warn if modules are used without only keyword
       -Wunderflow            # Produce a warning when numerical constant expressions are encountered, which yield an UNDERFLOW during compilation.
       -Wrealloc-lhs          # I assume this warns if the shape of the L.H.S. and R.H.S of an allocatable assignment differ.
@@ -18,6 +18,10 @@
       -Wfrontend-loop-interchange # Warn when using -ffrontend-loop-interchange for performing loop interchanges.
       -pedantic)    # Issue warnings for uses of extensions to Fortran i.e. C's #include
                     # This should be used in conjunction with -std=f95 to f2018
+
+    # Removed warnings
+    # Wimplicit-interface and Wimplicit-procedure are not usable with MPI.
+    # See: https://stackoverflow.com/questions/41938663/why-does-mpich-3-0s-mpi-module-omit-explicit-interfaces-for-some-procedures
 
    # See https://software.intel.com/content/www/us/en/develop/documentation/fortran-compiler-developer-guide-and-reference/top/compiler-reference/compiler-options/compiler-option-details/compiler-diagnostic-options/warn.html
    set(INTEL_WARNINGS

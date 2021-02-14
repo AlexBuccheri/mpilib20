@@ -17,6 +17,7 @@ module asserts
 
 contains
 
+#ifdef DEBUG
     !> Terminate following a failed assertion 
     !>
     !> @todo Note, this kills ALL mpi processes. One may not want to do this 
@@ -29,6 +30,7 @@ contains
         call MPI_ABORT(MPI_COMM_WORLD, error_code_logical, ierr) 
         !stop error_code_logical
     end subroutine terminate
+#endif
 
     !> Assert if a logical condition is true
     !>
@@ -38,16 +40,25 @@ contains
     subroutine assert_true(logical_condition, message)
         !> Condition to test
         logical, intent(in) :: logical_condition
+#ifdef DEBUG
         !> Optional message for termination
         character(len=*), intent(in), optional :: message
-#ifdef USE_ASSERT
         if (.not. logical_condition) then
             if (present(message)) then
                 write (error_unit, '(/,1x,a)') trim(adjustl(message))
             endif
             call terminate()
         end if
+#else
+        !> Optional message for termination
+        character(len=*), intent(inout), optional :: message
+        ! Return prior to evaluating anything
+        return
+        ! Peform a 'nothing' operation after return so Wunused-dummy-argument doesn't
+        ! complain in release mode. Fortran needs C++17's [[maybe_unused]] attribute.
+        message = merge(message, message, logical_condition)
 #endif
+
     end subroutine assert_true
 
 end module asserts

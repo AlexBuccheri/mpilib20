@@ -1,2 +1,15 @@
 # Mac custom attributes file
 .DS_Store  
+
+# IntelliJ
+.idea/
+cmake-build-*/
+
+# Build Dirs
+build/
+
+# Build Artifact
+*.dylib
+*.a
+*.mod
+*.o

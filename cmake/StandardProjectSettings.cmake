@@ -24,7 +24,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Generate compile_commands.json: Useful for generating source trails 
-# Test with SourceTrail
+# Test with SourceTrail (although this doesn't support fortran as of 2021)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Never tested with fortran
@@ -40,6 +40,3 @@ IF(ENABLE_IPO)
      message(SEND_ERROR "IPO is not supported: ${output}")
   endif()
 endif()
-
-
-	 
