@@ -26,6 +26,8 @@ set(LIBS "")
 # Find MPI
 include(cmake/mpi.cmake)
 
+# TODO Add Find openMP
+
 # Python 3, required for generating Zofu test drivers
 include(cmake/python3.cmake) 
 
@@ -114,5 +116,5 @@ list(APPEND routines_unit_tests "mpilib20_init_finalise_tests.f90")
 
 # Arguments are a) Tell Zofu the unit test is MPI, b)the relative unit test location SUBDIR 
 # and c) a list of UNIT_TESTS
-create_unit_test_executable(ENABLE_MPI SUBDIR "routines" UNIT_TESTS ${routines_unit_tests} )
+#create_unit_test_executable(ENABLE_MPI SUBDIR "routines" UNIT_TESTS ${routines_unit_tests} )
 
