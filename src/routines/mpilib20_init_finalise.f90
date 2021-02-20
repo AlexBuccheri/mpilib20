@@ -4,7 +4,10 @@
 !>  to be used as free subroutines.
 module mpilib20_init_finalise
   use, intrinsic :: iso_fortran_env, only: error_unit
-  use mpi_bindings, only : MPI_Comm, MPI_Group
+  use mpi_bindings, only : MPI_Comm, MPI_Group, MPI_INIT, MPI_COMM_DUP, &
+                           MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, MPI_COMM_DUP, &
+                           MPI_COMM_SIZE, MPI_GROUP_SIZE, MPI_FINALIZE, MPI_THREAD_SINGLE, &
+                           MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED,  MPI_THREAD_MULTIPLE    
   implicit none
   private 
 
@@ -59,18 +62,19 @@ contains
 
   !> Initialise MPI execution environment.
   subroutine mpilib20_init(mpi_env)
-    use mpi_bindings, only: MPI_COMM_WORLD, MPI_INIT, MPI_COMM_DUP
+    use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
 
     call MPI_INIT(mpi_env%ierror)
+    !TODO WILL need set comm to work with use mpi OR preprocess this whole block
     call MPI_COMM_DUP(MPI_COMM_WORLD, mpi_env%comm, mpi_env%ierror)
     call MPI_COMM_RANK(mpi_env%comm,   mpi_env%process ,    mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%comm,   mpi_env%n_processes, mpi_env%ierror)
     call MPI_COMM_GROUP(mpi_env%comm,  mpi_env%group,       mpi_env%ierror)
     call MPI_GROUP_SIZE(mpi_env%group, mpi_env%group_size,  mpi_env%ierror)
-    mpi_env%
+    mpi_env%root_id = 0
   end subroutine mpilib20_init
 
 
@@ -88,9 +92,7 @@ contains
   !>                        with no restrictions.
   !
   subroutine mpilib20_init_thread(mpi_env, required)
-    use mpi_bindings, only: MPI_COMM_WORLD, MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, MPI_COMM_DUP, &
-                       MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, &
-                       MPI_THREAD_MULTIPLE
+    use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
@@ -116,7 +118,7 @@ contains
 
     if(available < required) then 
        call MPI_COMM_RANK(MPI_COMM_WORLD, process, ierror)
-       if(process == root_id)then
+       if(process == mpi_env%root_id)then
           write(error_unit,'(1x,a,I1,a,I1)') 'error - threading support available, ',&
                available, ', is less than is required, ', required
           call MPI_ABORT(MPI_COMM_WORLD, errorcode, ierror)
@@ -134,12 +136,9 @@ contains
 
   !> Terminates MPI execution environment.
   subroutine mpilib20_finalize(mpi_env)
-    use mpi_bindings, only: MPI_FINALIZE
-
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
     call MPI_FINALIZE(mpi_env%ierror)
-
   end subroutine mpilib20_finalize
 
 
@@ -149,8 +148,6 @@ contains
 
   !> Initialise an instance of the MPI environment.
   subroutine init_mpi_env(self, required_threading)
-    use mpi_bindings, only:  MPI_COMM_RANK, MPI_COMM_SIZE, MPI_GROUP_SIZE
-
     !> An instance of the MPI environment
     class(mpi_env_type), intent(inout) :: self 
     !> Required level of threading support
