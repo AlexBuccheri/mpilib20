@@ -5,6 +5,7 @@
 # run by an executable `test_maths`
 #
 # Variables accessed globally:
+#   'mpilib20' library name under testing
 #   ${ZOFU_DRIVER}
 #   ${ZOFU}
 #
@@ -29,7 +30,7 @@ function(create_unit_test_executable)
             "${oneValueArgs}"                      # Assign the single-value options for the function
             "${multiValueArgs}"                    # Assign the multi-value options for the function
             ${ARGV})                               # ${ARGN} or ${ARGV}. (I think) ${ARGV} means accept a variable
-                                                   # number of arguments, which one want for a list of no fixed size
+                                                   # number of arguments, which one wants for a list of no fixed size
 
     # Prepend the UNIT_TESTS list with their full file path
     list(TRANSFORM FUNC_UNIT_TESTS PREPEND "${CMAKE_SOURCE_DIR}/src/${FUNC_SUBDIR}/")
@@ -69,11 +70,11 @@ function(create_unit_test_executable)
             ${TEST_DRIVER_DIR}/${FUNC_SUBDIR}_driver.f90
             )
     # Ensure required library gets compiled if one attempts to build the unit test executable
-    add_dependencies(test_${FUNC_SUBDIR} libunit_testing)
+    add_dependencies(test_${FUNC_SUBDIR} mpilib20)
 
     # Link the libraries that the unit test executable will dependent on
     # We assume that ZOFU is built and found by CMake at this point
-    target_link_libraries(test_${FUNC_SUBDIR} ${ZOFU} libunit_testing)
+    target_link_libraries(test_${FUNC_SUBDIR} ${ZOFU} mpilib20)
 
     # Allows test executable `test_${FUNC_SUBDIR}` to be run with ctest
     # All unit tests assumed to be FAST, hence no specific CONFIGURATIONs
