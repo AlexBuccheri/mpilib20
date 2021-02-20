@@ -26,7 +26,8 @@ set(LIBS "")
 # Find MPI
 include(cmake/mpi.cmake)
 
-# TODO Add Find openMP
+# TODO Add Find openMP implementation in omp.cmake)
+include(cmake/omp.cmake)
 
 # Python 3, required for generating Zofu test drivers
 include(cmake/python3.cmake) 
@@ -35,7 +36,7 @@ include(cmake/python3.cmake)
 include(cmake/FindZofu.cmake)
 
 # Ford or doxygen documentation 
-include(cmake/include(Documentation))
+include(cmake/Documentation.cmake)
 
 # --------------------------
 # Library build 
@@ -75,6 +76,11 @@ endif()
 # - question of how modular CMake should be 
 include(cmake/PreprocessorSettings.cmake)
 
+#TODO 
+if(NOT MPI08)
+ message(FATAL_ERROR "Library will not run with MPI08=off because getters and setters need to be used in the existing routines")
+endif()
+
 # --------------------------
 # Library installation
 # --------------------------
@@ -88,7 +94,7 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
 endif()
 
 # ${CMAKE_INSTALL_PREFIX} is implict in install DESTINATION lib 
-install(TARGETs mpilib20 LIBRARY DESTINATION lib)
+install(TARGETS mpilib20 LIBRARY DESTINATION lib)
 
 if(BUILD_STATIC) 
   install(TARGETS mpilib20-static ARCHIVE DESTINATION lib)

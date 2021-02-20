@@ -22,13 +22,14 @@ set(ENABLE_DOCS "" CACHE STRING "Documentation parser")
 if (${ENABLE_DOCS} STREQUAL "FORD")
 
    find_program(FORD ford REQUIRED)
-   file(MAKE_DIRECTORY "documentation/ford")
+   set(ford_output "documentation/ford")
+   file(MAKE_DIRECTORY "${ford_output}")
    message("-- Ford documentation support enabled.")
 
    # Runs at compile time
    add_custom_target(docs
-                     COMMAND ${FORD} -o ${ford_output} ${PROJECT_SOURCE_DIR}/project-description.md
-		                )
+                     COMMAND ford -o ${ford_output} ${PROJECT_SOURCE_DIR}/project-description.md
+		               )
  
 elseif (${ENABLE_DOCS} STREQUAL "DOXYGEN")
 

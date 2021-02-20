@@ -5,8 +5,10 @@ if(CMAKE_BUILD_TYPE MATCHES Debug)
     set_property(TARGET mpilib20 APPEND PROPERTY
             COMPILE_DEFINITIONS "USE_ASSERT")
 
-    set_property(TARGET mpilib20-static APPEND PROPERTY
-            COMPILE_DEFINITIONS "USE_ASSERT")
+    if(BUILD_STATIC)
+       set_property(TARGET mpilib20-static APPEND PROPERTY
+               COMPILE_DEFINITIONS "USE_ASSERT")
+    endif()        
 endif()
 
 # Provides an option for the user to select as ON or OFF.
