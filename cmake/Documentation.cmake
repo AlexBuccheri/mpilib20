@@ -45,7 +45,7 @@ elseif (${ENABLE_DOCS} STREQUAL "DOXYGEN")
                      COMMAND ${DOXYGEN} ${PROJECT_SOURCE_DIR}/Doxyfile
 		                )
 
-else()
+elseif (NOT ${ENABLE_DOCS} STREQUAL "")
    message(WARNING "--ENABLE_DOCS choice not recognised.")
 
 endif ()

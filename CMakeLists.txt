@@ -112,15 +112,42 @@ install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}
 # --------------------------
 enable_testing()
 
-# Functions for generating unit test executables
-include(cmake/unit_test_functions.cmake)
+# List of test drivers 
+# Each test comprises of program and a module in the same .f90 file
+set(unit_tests 
+    src/tests/test_init.f90
+   # src/tests/test_init_thread.f90
+   )
 
-# A list containing all unit test modules within a given subdirectory
-# TODO(Alex) Maybe in this case we actually do want a driver per test module
-# as all (or many) test modules are likely to be in the same subdirectory. 
-list(APPEND routines_unit_tests "mpilib20_init_finalise_tests.f90")
+foreach(unit_test ${unit_tests})
 
-# Arguments are a) Tell Zofu the unit test is MPI, b)the relative unit test location SUBDIR 
-# and c) a list of UNIT_TESTS
-#create_unit_test_executable(ENABLE_MPI SUBDIR "routines" UNIT_TESTS ${routines_unit_tests} )
+    # Strip directory and file extension
+    get_filename_component(test_name ${unit_test} NAME_WE)
+    message("${test_name}")
 
+    # Binary
+    add_executable(test_${test_name})   
+
+    # Set directory in which unit test is built
+    set_target_properties(test_${test_name}
+            PROPERTIES
+            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit_tests"
+            )
+
+    # Attach source file
+    target_sources(test_${test_name}
+            PRIVATE
+            ${PROJECT_SOURCE_DIR}/${unit_test}
+            )
+
+    # Ensure required library gets compiled if one attempts to build the unit test executable
+    add_dependencies(test_${test_name} mpilib20)
+
+    # Link the libraries 
+    target_link_libraries(test_${test_name} ${ZOFU} mpilib20)
+
+    # Allows test executable to be run with ctest
+    add_test(NAME UNITTEST_${test_name}
+             COMMAND ${CMAKE_BINARY_DIR}/unit_tests/test_${test_name})
+
+endforeach()

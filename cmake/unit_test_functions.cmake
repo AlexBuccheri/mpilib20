@@ -35,10 +35,6 @@ function(create_unit_test_executable)
     # Prepend the UNIT_TESTS list with their full file path
     list(TRANSFORM FUNC_UNIT_TESTS PREPEND "${CMAKE_SOURCE_DIR}/src/${FUNC_SUBDIR}/")
 
-    # Create a directory in the build folder to place generated test drivers
-    set(TEST_DRIVER_DIR ${PROJECT_BINARY_DIR}/test_drivers)
-    file(MAKE_DIRECTORY ${TEST_DRIVER_DIR})
-
     # Runs the unix command specified by COMMAND:
     # Create a unit test driver that runs all tests in the respective subdirectory
     # using ${ZOFU_DRIVER} (which must be my custom script, not the binary supplied with the library)
@@ -82,3 +78,5 @@ function(create_unit_test_executable)
              COMMAND ${CMAKE_BINARY_DIR}/unit_tests/test_${FUNC_SUBDIR})
 
 endfunction()
+
+

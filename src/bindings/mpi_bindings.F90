@@ -76,7 +76,7 @@ module mpi_bindings
 
         ! TODO Document each type 
         type MPI_Comm
-            integer :: VALUE
+            integer :: MPI_VAL
         end type 
         type :: MPI_Datatype
             integer :: MPI_VAL
