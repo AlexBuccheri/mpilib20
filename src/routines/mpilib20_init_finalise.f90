@@ -9,9 +9,10 @@ module mpilib20_init_finalise
   private 
 
   !> Process designated as master/root 
+  ! TODO(Alex) Should be part of class
   integer, public, parameter :: root_id = 0
   
-  ! TODO. Add get and set 
+  ! TODO. Add get  and make data private  
   !> MPI environment type
   type, public :: mpi_env_type
      type(MPI_Comm)  :: comm         !! MPI communicator (integer in older bindings)
