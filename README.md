@@ -53,7 +53,13 @@ A simple test code is present in ROOT/test/init to check building and linking. T
 `make`    
 `mpirun -np 2 ./test.exe`
 
+### Unit Test Failures
 
+Problem:
+MPI returns `MPI_COMM_RANK Invalid Communicator`
+
+Solution
+Ensure Zofu has been built with the same flavour of MPI as MPILib20. 
 
 ## Bugs/To Dos
 

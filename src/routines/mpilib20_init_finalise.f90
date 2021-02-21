@@ -80,8 +80,13 @@ contains
     !> 
     type(MPI_Comm) :: temporary_communicator
 
-    call assert(present(communicator) .and. present(bare_communicator), &
-         "init should not accept two communicator arguments")
+
+
+
+  
+     call assert(.not. all([present(communicator), present(bare_communicator)]), &
+         "mpilib20_init should not receive communicator and bare_communicator arguments &
+          in the same call.")
 
     if (present(communicator)) then
       temporary_communicator = communicator

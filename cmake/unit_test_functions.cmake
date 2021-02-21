@@ -95,13 +95,11 @@ function(create_unit_test_executable_per_module)
     # Get Test name by stripping extension
     get_filename_component(test_name ${FUNC_UNIT_TEST} NAME_WE)       
                     
-    #TODO(Alex) FUNC_SUBDIR not passing!
+    #TODO(Alex) FUNC_SUBDIR not passing! FIX ME
     set(FUNC_SUBDIR "src/tests")
-
 
     # Prepend the UNIT_TESTS list with their full file path
     list(TRANSFORM FUNC_UNIT_TEST PREPEND "${CMAKE_SOURCE_DIR}/${FUNC_SUBDIR}/")
-    message("FUNC_UNIT_TEST ${FUNC_UNIT_TEST}    ${FUNC_SUBDIR}")
 
     # Runs the unix command specified by COMMAND:
     # Create a unit test driver that runs all tests in the respective subdirectory using ${ZOFU_DRIVER}
@@ -135,7 +133,6 @@ function(create_unit_test_executable_per_module)
     add_dependencies(test_${test_name} mpilib20)
 
     # Link the libraries that the unit test executable will dependent on
-
     # TODO (Alex) Check Zofu is found at this point 
     target_link_libraries(test_${test_name} ${ZOFU} mpilib20)
 
@@ -147,7 +144,7 @@ function(create_unit_test_executable_per_module)
 endfunction()
 
 
-#TODO Alex Turn into a function. One test binary per program 
+#TODO Alex Turn into a function. One test binary per test program 
 # foreach(unit_test ${unit_tests})
 
 #     # Strip directory and file extension
