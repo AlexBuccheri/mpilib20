@@ -26,16 +26,17 @@ set(LIBS "")
 # Find MPI
 include(cmake/mpi.cmake)
 
-# TODO Add Find openMP implementation in omp.cmake)
+# TODO Add Find openMP implementation in omp.cmake
 include(cmake/omp.cmake)
 
 # Python 3, required for generating Zofu test drivers
+# We may not use that though 
 include(cmake/python3.cmake) 
 
 # Zofu unit testing framework
 include(cmake/FindZofu.cmake)
 
-# Ford or doxygen documentation 
+# Ford or doxygen documentation parsers 
 include(cmake/Documentation.cmake)
 
 # --------------------------
@@ -110,6 +111,13 @@ install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}
 # --------------------------
 # Unit tests 
 # --------------------------
+
+#TODO(Alex) How does one use ctest with MPI applications? 
+# add test needs arguments: https://stackoverflow.com/questions/19278510/cmake-ctest-add-test-command-appends-extra-quotes-to-my-command-parameters
+
+# TODO(Alex) Investigate this
+# https://cmake.org/cmake/help/latest/command/ctest_test.html#command:ctest_test
+
 enable_testing()
 
 # List of test drivers 
@@ -144,9 +152,10 @@ foreach(unit_test ${unit_tests})
     add_dependencies(test_${test_name} mpilib20)
 
     # Link the libraries 
-    target_link_libraries(test_${test_name} ${ZOFU} mpilib20)
+    target_link_libraries(test_${test_name} ${ZOFU} mpilib20 ${LIBS})
 
     # Allows test executable to be run with ctest
+    # TODO(Alex) Add args so tests run with multiple processes 
     add_test(NAME UNITTEST_${test_name}
              COMMAND ${CMAKE_BINARY_DIR}/unit_tests/test_${test_name})
 
