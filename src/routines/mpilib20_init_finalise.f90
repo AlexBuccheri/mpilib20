@@ -118,6 +118,17 @@ contains
   ! temporary_communicator = communicator
 
 
+  !TODO
+  ! MAKES SENSE TO:
+  ! Write free functions to copy_comm and copy_group
+  !  - Can then abstract all this preprocessing junk 
+  ! Two routines each (overloads) and the return type can be controlled by preprocessing
+  ! Then the inputs to the init routines get immediately copied and one doesn't need
+  ! to worry about the return object's type 
+  ! Can also use them in type-bound methods if required
+  ! Don't depend on mpi_env_type so put in different module 
+
+
   !> Initialise the MPI environment.
   !> 
   !> If the MPI has not been initialised, MPI_INIT is called.
