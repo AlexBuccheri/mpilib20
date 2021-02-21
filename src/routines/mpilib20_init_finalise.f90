@@ -4,6 +4,7 @@
 !>  to be used as free subroutines.
 module mpilib20_init_finalise
   use, intrinsic :: iso_fortran_env, only: error_unit
+  use asserts, only: assert
   use mpi_bindings, only : MPI_Comm, MPI_Group, MPI_INIT, MPI_COMM_DUP, &
                            MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, MPI_COMM_DUP, &
                            MPI_COMM_SIZE, MPI_GROUP_SIZE, MPI_FINALIZE, MPI_THREAD_SINGLE, &
@@ -60,17 +61,43 @@ contains
   ! be present in this file to avoid circular dependency.
   !--------------------------------------------------------
 
+  !TODO(Alex) This routine can probably be split up
+  ! Document in more detail 
   !> Initialise MPI execution environment.
-  subroutine mpilib20_init(mpi_env)
+  !> We could be using the f08 bindings, however we could be receiving 
+  !> a integer communicator from the old bindings, hence why it's an optional
+  !> argument, rather than preprocessor dircective around its declaration. 
+  subroutine mpilib20_init(mpi_env, communicator, bare_communicator)
     use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
+    !> Existing communicator of type consistent with mpi_f08 
+    type(MPI_Comm), intent(in), optional :: communicator
+    !> Existing communicator of type consistent with old mpi
+    integer, intent(in), optional :: bare_communicator
 
-    call MPI_INIT(mpi_env%ierror)
+    !> 
+    type(MPI_Comm) :: temporary_communicator
+
+    call assert(present(communicator) .and. present(bare_communicator), &
+         "init should not accept two communicator arguments")
+
+    if (present(communicator)) then
+      temporary_communicator = communicator
+
+    else if (present(bare_communicator)) then
+      temporary_communicator%MPI_VAL = bare_communicator
+
+    else
+      call MPI_INIT(mpi_env%ierror)
+      ! Note, so much of this will break when using mpi. Need getters and setters 
+      temporary_communicator = MPI_COMM_WORLD
+    endif   
+    
+    call MPI_COMM_DUP(temporary_communicator, mpi_env%comm, mpi_env%ierror)
     !TODO WILL need set comm to work with use mpi OR preprocess this whole block
-    call MPI_COMM_DUP(MPI_COMM_WORLD, mpi_env%comm, mpi_env%ierror)
-    call MPI_COMM_RANK(mpi_env%comm,   mpi_env%process ,    mpi_env%ierror)
+    call MPI_COMM_RANK(mpi_env%comm,   mpi_env%process,     mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%comm,   mpi_env%n_processes, mpi_env%ierror)
     call MPI_COMM_GROUP(mpi_env%comm,  mpi_env%group,       mpi_env%ierror)
     call MPI_GROUP_SIZE(mpi_env%group, mpi_env%group_size,  mpi_env%ierror)
@@ -78,6 +105,7 @@ contains
   end subroutine mpilib20_init
 
 
+  !> TODO Extend as with mpilib20_init
   !> Initialises the MPI execution environment for use with hybrid MPI/threaded applications.
   !>
   !> MPI_COMM_WORLD is duplicated.
@@ -147,16 +175,25 @@ contains
   !---------------
 
   !> Initialise an instance of the MPI environment.
-  subroutine init_mpi_env(self, required_threading)
+  subroutine init_mpi_env(self, required_threading, communicator, bare_communicator)
     !> An instance of the MPI environment
     class(mpi_env_type), intent(inout) :: self 
     !> Required level of threading support
     integer, optional,   intent(in)    :: required_threading
+    !> Existing communicator of type consistent with mpi_f08 
+    type(MPI_Comm), intent(in), optional :: communicator
+    !> Existing communicator of type consistent with old mpi
+    integer, intent(in), optional :: bare_communicator
+
+    !Could simplify by putting bare_communicator into communicator here 
 
     if(present(required_threading)) then
-       call mpilib20_init_thread(self, required_threading)
-    else
-       call mpilib20_init(self)
+       !TODO Extend to take  communicator or bare_communicator
+       call mpilib20_init_thread(self, required = required_threading)
+    else if(present(communicator)) then 
+       call mpilib20_init(self, communicator = communicator)
+    else if(present(bare_communicator)) then 
+       call mpilib20_init(self, bare_communicator = bare_communicator)
     endif
 
   end subroutine init_mpi_env

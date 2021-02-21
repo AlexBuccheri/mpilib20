@@ -112,51 +112,34 @@ install(DIRECTORY ${CMAKE_Fortran_MODULE_DIRECTORY}
 # Unit tests 
 # --------------------------
 
+# TODO(Alex) should only build tests if zofu is found OR unit tests are enabled 
+
 #TODO(Alex) How does one use ctest with MPI applications? 
 # add test needs arguments: https://stackoverflow.com/questions/19278510/cmake-ctest-add-test-command-appends-extra-quotes-to-my-command-parameters
 
 # TODO(Alex) Investigate this
 # https://cmake.org/cmake/help/latest/command/ctest_test.html#command:ctest_test
 
+#TODO(Alex) This should get reverted to the module approach
+# Have 1 test driver per module (so no need to use my python script)
+# Have set-up and tear down to call our mpi_env%init and finalize
+# Note, Zofu will need extending at some point to optionally accept a communicator 
+# i.e. test%init(communicator)
+
 enable_testing()
 
-# List of test drivers 
-# Each test comprises of program and a module in the same .f90 file
-set(unit_tests 
-    src/tests/test_init.f90
-   # src/tests/test_init_thread.f90
-   )
+# Functions for generating unit test executables
+include(cmake/unit_test_functions.cmake)
 
-foreach(unit_test ${unit_tests})
+# Create a directory in the build folder to place generated test drivers
+set(TEST_DRIVER_DIR ${PROJECT_BINARY_DIR}/test_drivers)
+file(MAKE_DIRECTORY ${TEST_DRIVER_DIR})
 
-    # Strip directory and file extension
-    get_filename_component(test_name ${unit_test} NAME_WE)
-    message("${test_name}")
+# A list containing all module tests. 
+set(unit_tests "test_init.f90")
 
-    # Binary
-    add_executable(test_${test_name})   
-
-    # Set directory in which unit test is built
-    set_target_properties(test_${test_name}
-            PROPERTIES
-            RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/unit_tests"
-            )
-
-    # Attach source file
-    target_sources(test_${test_name}
-            PRIVATE
-            ${PROJECT_SOURCE_DIR}/${unit_test}
-            )
-
-    # Ensure required library gets compiled if one attempts to build the unit test executable
-    add_dependencies(test_${test_name} mpilib20)
-
-    # Link the libraries 
-    target_link_libraries(test_${test_name} ${ZOFU} mpilib20 ${LIBS})
-
-    # Allows test executable to be run with ctest
-    # TODO(Alex) Add args so tests run with multiple processes 
-    add_test(NAME UNITTEST_${test_name}
-             COMMAND ${CMAKE_BINARY_DIR}/unit_tests/test_${test_name})
-
+foreach(test_module ${unit_tests})
+   create_unit_test_executable_per_module(ENABLE_MPI SUBDIR src/tests UNIT_TEST ${test_module})
 endforeach()
+
+

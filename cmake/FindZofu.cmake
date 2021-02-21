@@ -27,8 +27,8 @@ include_directories(${ZOFU_INCLUDE_DIR})
 
 # Program that generates a unit test driver given a test module.
 # Unfortunately this does not take multiple modules as arguments
-#set(ZOFU_DRIVER ${ZOFU_DIR}/bin/zofu-driver)
+set(ZOFU_DRIVER ${ZOFU_PATH}/bin/zofu-driver)
 
 # This custom Zofu driver, which accepts multiple modules as arguments,
 # reducing the number of unit test driver .f90 programs
-set(ZOFU_DRIVER ${CMAKE_SOURCE_DIR}/python/zofu/make_zofu_driver.py)
+# set(ZOFU_DRIVER ${CMAKE_SOURCE_DIR}/python/zofu/make_zofu_driver.py)
