@@ -39,8 +39,7 @@ module test_mpilib20_init
          type(mpi_env_type) :: mpi_env                 !! mpi environment
     
          call mpi_env%init(bare_communicator = MPI_COMM_WORLD)
-         !TODO Replace mpi_env%comm%MPI_VAL with mpi_env%get_comm (same for get_group)
-         call test%assert(mpi_env%comm%MPI_VAL /= MPI_COMM_WORLD, &
+         call test%assert(mpi_env%get_comm() /= MPI_COMM_WORLD, &
               name = "MPILib20's global communicator should differ from MPI_COMM_WORLD due to duplication")
          call test%assert(mpi_env%n_processes == mpi_env%group_size, &
               name = "N processes (ranks) equals the group size for comm world.")
