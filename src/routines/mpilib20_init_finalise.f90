@@ -9,6 +9,7 @@ module mpilib20_init_finalise
                            MPI_INIT_THREAD, MPI_COMM_RANK, MPI_ABORT, MPI_COMM_DUP, &
                            MPI_COMM_SIZE, MPI_GROUP_SIZE, MPI_FINALIZE, MPI_THREAD_SINGLE, &
                            MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED,  MPI_THREAD_MULTIPLE    
+  use utils, only: get_comm
   implicit none
   private 
 
@@ -143,16 +144,31 @@ contains
   !> 
   !> @todo(Alex) This routine can be split up
   !
-  subroutine mpilib20_init_f08(mpi_env, communicator)
+
+
+  subroutine mpilib20_init_from_comm_world(mpi_env)
+    use mpi_bindings, only: MPI_COMM_WORLD
+
+    !> Instance of the MPI environment
+    type(mpi_env_type), intent(inout) :: mpi_env 
+    
+    call MPI_COMM_DUP(MPI_COMM_WORLD,  mpi_env%comm, mpi_env%ierror)
+    call MPI_COMM_RANK(mpi_env%comm,   mpi_env%process,     mpi_env%ierror)
+    call MPI_COMM_SIZE(mpi_env%comm,   mpi_env%n_processes, mpi_env%ierror)
+    call MPI_COMM_GROUP(mpi_env%comm,  mpi_env%group,       mpi_env%ierror)
+    call MPI_GROUP_SIZE(mpi_env%group, mpi_env%group_size,  mpi_env%ierror)
+    mpi_env%root_process = 0
+
+  end subroutine mpilib20_init_from_comm_world
+
+  
+  subroutine mpilib20_init_from_commf08(mpi_env, communicator)
     use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
     !> Existing communicator of type consistent with mpi_f08 
-    type(MPI_Comm), intent(in), optional :: communicator
-
-    !> Temporarily hold the communicator in the scope of this routine
-    type(MPI_Comm) :: temporary_communicator
+    type(MPI_Comm), intent(in) :: communicator
 
 #ifndef MPI08
     write(*,*) 'The supplied communicator is of type (mpi_env_type) but ' &
@@ -160,67 +176,84 @@ contains
     write(*,*) 'Please recompile MPILib20 with MPI08=On.' 
     stop 1
 #endif 
-
-    if (present(communicator)) then
-      ! communicators have the same type 
-      temporary_communicator = communicator
-    else
-      call MPI_INIT(mpi_env%ierror)
-      temporary_communicator = MPI_COMM_WORLD
-    endif   
     
-    call MPI_COMM_DUP(temporary_communicator, mpi_env%comm, mpi_env%ierror)
+    ! TODO Think about how to set this if this is a subcommunicator being initialised 
+    ! Probably write a routine to get the lowest rank from this available w.r.t. comm 
+    mpi_env%root_process = 0
+    mpi_env%comm  =  mpilib20_comm_dup(communicator)
     call MPI_COMM_RANK(mpi_env%comm,   mpi_env%process,     mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%comm,   mpi_env%n_processes, mpi_env%ierror)
     call MPI_COMM_GROUP(mpi_env%comm,  mpi_env%group,       mpi_env%ierror)
     call MPI_GROUP_SIZE(mpi_env%group, mpi_env%group_size,  mpi_env%ierror)
-    ! Think about how to set this if this is a subcommunicator being initialised 
-    ! Probably write a routine to get the lowest rank from this available w.r.t. comm 
-    mpi_env%root_process = 0
 
-  end subroutine mpilib20_init_f08 
+  end subroutine mpilib20_init_from_commf08 
 
 
-  ! Name needs to be better
-  subroutine mpilib20_init_f90(mpi_env, communicator)
+  subroutine mpilib20_init_from_commf90(mpi_env, communicator)
     use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
     !> Existing communicator of type consistent with old mpi
-    integer, intent(in), optional :: communicator
+    integer, intent(in) :: communicator
 
-    !> Temporarily hold the communicator in the scope of this routine
-    type(MPI_Comm) :: temporary_communicator
-  
-    !TODO This is messy as fuck - needs refactoring now I can see the choices
-    ! SHOULD JUST REFACTOR THIS INTO TWO ROUTINES AND OVERLOAD THE INTERFACE
-    ! SUCH THAT ALL 4 MPI_INIT ROUTINES CALL THE SAME THING
-    if (present(communicator)) then
-#ifdef MPI08
-      temporary_communicator%MPI_VAL = communicator
-      call MPI_COMM_DUP(temporary_communicator, mpi_env%comm, mpi_env%ierror)
-#else 
-      call MPI_COMM_DUP(communicator, mpi_env%comm%MPI_VAL, mpi_env%ierror)
-#endif 
-
-    else
-      call MPI_INIT(mpi_env%ierror)
-#ifdef MPI08
-      call MPI_COMM_DUP(MPI_COMM_WORLD, mpi_env%comm, mpi_env%ierror)
-#else 
-      call MPI_COMM_DUP(MPI_COMM_WORLD, mpi_env%comm%MPI_VAL, mpi_env%ierror)
-#endif 
-    endif   
-    
+    ! TODO Think about how to set this if this is a subcommunicator being initialised 
+    mpi_env%root_process = 0
+    mpi_env%comm  =  mpilib20_comm_dup(communicator)
     call MPI_COMM_RANK(mpi_env%get_comm(),   mpi_env%process,     mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%get_comm(),   mpi_env%n_processes, mpi_env%ierror)
     call MPI_COMM_GROUP(mpi_env%get_comm(),  mpi_env%group,       mpi_env%ierror)
     call MPI_GROUP_SIZE(mpi_env%get_comm(),  mpi_env%group_size,  mpi_env%ierror)
-    ! Think about how to set this if this is a subcommunicator being initialised 
-    mpi_env%root_process = 0
 
-  end subroutine mpilib20_init_f90
+  end subroutine mpilib20_init_from_commf90
+
+
+
+  subroutine mpilib20_init_thread(mpi_env, required)
+    use mpi_bindings, only: MPI_COMM_WORLD
+
+    !> Instance of the MPI environment
+    type(mpi_env_type), intent(inout) :: mpi_env
+    !> Required level of threading support 
+    integer,            intent(in)    :: required
+
+    !> Error code returned to the MPI environment (arbitrary)
+    integer, parameter :: errorcode = 0
+    !> Threading options 
+    integer, parameter, dimension(4) :: thread_options = [MPI_THREAD_SINGLE,     &
+                                                          MPI_THREAD_FUNNELED,   &
+                                                          MPI_THREAD_SERIALIZED, &
+                                                          MPI_THREAD_MULTIPLE]
+    !> Level of available (provided) threading support 
+    integer :: available
+    integer :: process, ierror
+
+
+    if(.not. any(thread_options == required)) then
+       write(error_unit,'(1x,a,I1)') 'required thread is not a valid choice:', required
+    endif
+
+    mpi_env%root_process = 0
+    call MPI_INIT_THREAD(required, available, ierror)
+ 
+    if(available < required) then 
+      ! Is this reachable if not present(communicator)  and (available < required) 
+      ! or will MPI_INIT_THREAD throw an opaque error first? 
+      call MPI_COMM_RANK(MPI_COMM_WORLD, process, ierror)
+      if(process == mpi_env%root_id())then
+         write(error_unit,'(1x,a,I1,a,I1)') 'threading support available, ',&
+              available, ', is less than is required, ', required
+         call MPI_ABORT(MPI_COMM_WORLD, errorcode, ierror)
+      endif
+   endif
+
+    call MPI_COMM_DUP(MPI_COMM_WORLD,  mpi_env%comm,        mpi_env%ierror)
+    call MPI_COMM_RANK(mpi_env%comm,   mpi_env%process ,    mpi_env%ierror)
+    call MPI_COMM_SIZE(mpi_env%comm,   mpi_env%n_processes, mpi_env%ierror)
+    call MPI_COMM_GROUP(mpi_env%comm,  mpi_env%group,       mpi_env%ierror)
+    call MPI_GROUP_SIZE(mpi_env%group, mpi_env%group_size,  mpi_env%ierror)
+
+  end subroutine mpilib20_init_thread 
 
 
   !> Initialises the MPI execution environment for use with hybrid MPI/threaded applications.
@@ -237,14 +270,13 @@ contains
   !>                        with no restrictions.
   !
   subroutine mpilib20_init_thread_f08(mpi_env, required, communicator)
-    use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
     !> Required level of threading support 
     integer,            intent(in)    :: required
     !> Existing communicator 
-    type(MPI_Comm), intent(in), optional :: communicator
+    type(MPI_Comm), intent(in) :: communicator
 
     !> Error code returned to the MPI environment (arbitrary)
     integer, parameter :: errorcode = 0
@@ -255,47 +287,34 @@ contains
                                                           MPI_THREAD_MULTIPLE]
     !> Level of available (provided) threading support 
     integer :: available
-    !> Communicator place-holder in the scope of this routine 
-    type(MPI_Comm) :: temporary_communicator
-    !> Process id
-    integer :: process
-    !> Error 
-    integer :: ierror
+    integer :: process, ierror
 
     if(.not. any(thread_options == required)) then
        write(error_unit,'(1x,a,I1)') 'required thread is not a valid choice:', required
     endif
 
-    if (present(communicator)) then
-      temporary_communicator = communicator
-
-    else
-      call MPI_INIT_THREAD(required, available, ierror)
-      temporary_communicator = MPI_COMM_WORLD
-    endif  
-
-    ! Think about how to set this if this is a subcommunicator being initialised 
+    ! TODO Think about how to set this if this is a subcommunicator being initialised 
     mpi_env%root_process = 0
 
     if(available < required) then 
       ! Is this reachable if not present(communicator)  and (available < required) 
       ! or will MPI_INIT_THREAD throw an opaque error first? 
-      call MPI_COMM_RANK(MPI_COMM_WORLD, process, ierror)
+      ! DO WE WANT TO kill comm world instead?
+      call MPI_COMM_RANK(get_comm(communicator), process, ierror)
       if(process == mpi_env%root_id())then
          write(error_unit,'(1x,a,I1,a,I1)') 'threading support available, ',&
               available, ', is less than is required, ', required
-         call MPI_ABORT(MPI_COMM_WORLD, errorcode, ierror)
+         call MPI_ABORT(get_comm(communicator), errorcode, ierror)
       endif
    endif
 
-    call MPI_COMM_DUP(temporary_communicator, mpi_env%comm,        mpi_env%ierror)
+    mpi_env%comm  =  mpilib20_comm_dup(communicator)
     call MPI_COMM_RANK(mpi_env%comm,          mpi_env%process ,    mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%comm,          mpi_env%n_processes, mpi_env%ierror)
     call MPI_COMM_GROUP(mpi_env%comm,         mpi_env%group,       mpi_env%ierror)
     call MPI_GROUP_SIZE(mpi_env%group,        mpi_env%group_size,  mpi_env%ierror)
 
   end subroutine mpilib20_init_thread_f08 
-
 
   !> Initialises the MPI execution environment for use with hybrid MPI/threaded applications.
   !>
@@ -311,14 +330,13 @@ contains
   !>                        with no restrictions.
   !
   subroutine mpilib20_init_thread_f90(mpi_env, required, communicator)
-    use mpi_bindings, only: MPI_COMM_WORLD
 
     !> Instance of the MPI environment
     type(mpi_env_type), intent(inout) :: mpi_env
     !> Required level of threading support 
     integer,            intent(in)    :: required
     !> Existing communicator 
-    integer, intent(in), optional :: communicator
+    integer, intent(in) :: communicator
 
     !> Error code returned to the MPI environment (arbitrary)
     integer, parameter :: errorcode = 0
@@ -329,39 +347,26 @@ contains
                                                           MPI_THREAD_MULTIPLE]
     !> Level of available (provided) threading support 
     integer :: available
-    !> Communicator place-holder in the scope of this routine 
-    type(MPI_Comm) :: temporary_communicator
-    !> Process id
-    integer :: process
-    !> Error 
-    integer :: ierror
+    integer :: process, ierror
 
     if(.not. any(thread_options == required)) then
        write(error_unit,'(1x,a,I1)') 'required thread is not a valid choice:', required
     endif
 
-    if (present(communicator)) then
-      temporary_communicator%MPI_VAL = communicator
-
-    else
-      call MPI_INIT_THREAD(required, available, ierror)
-      temporary_communicator = MPI_COMM_WORLD
-    endif  
-
-    ! Think about how to set this if this is a subcommunicator being initialised 
+    ! TODO Think about how to set this if this is a subcommunicator being initialised 
     mpi_env%root_process = 0
 
     ! Not sure if this is ever reachable (i.e. will MPI_INIT_THREAD throw an error?)
     if(available < required) then 
-      call MPI_COMM_RANK(MPI_COMM_WORLD, process, ierror)
+      call MPI_COMM_RANK(get_comm(communicator), process, ierror)
       if(process == mpi_env%root_id())then
          write(error_unit,'(1x,a,I1,a,I1)') 'threading support available, ',&
               available, ', is less than is required, ', required
-         call MPI_ABORT(MPI_COMM_WORLD, errorcode, ierror)
+         call MPI_ABORT(get_comm(communicator), errorcode, ierror)
       endif
    endif
 
-    call MPI_COMM_DUP(temporary_communicator, mpi_env%comm,        mpi_env%ierror)
+    mpi_env%comm  =  mpilib20_comm_dup(communicator)
     call MPI_COMM_RANK(mpi_env%comm,          mpi_env%process ,    mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%comm,          mpi_env%n_processes, mpi_env%ierror)
     call MPI_COMM_GROUP(mpi_env%comm,         mpi_env%group,       mpi_env%ierror)
@@ -375,6 +380,13 @@ contains
     type(mpi_env_type), intent(inout) :: mpi_env
     call MPI_FINALIZE(mpi_env%ierror)
   end subroutine mpilib20_finalize
+
+!----------------------------
+
+
+
+  !CLEAN UP FROM HERE
+
 
 
   !---------------
