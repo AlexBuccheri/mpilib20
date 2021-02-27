@@ -14,11 +14,15 @@ module mpilib20_init_finalise
   private 
 
   !> Threading options for MPI initialisation in a hybrid MPI-OMP environment 
+  !>
+  !> MPI_THREAD_SINGLE:     Only one thread will execute. Equivalent to calling MPI_init(ierror)
+  !> MPI_THREAD_FUNNELED:   If the process is multithreaded, only the thread that called MPI_Init_thread will make MPI calls.
+  !> MPI_THREAD_SERIALIZED: If the process is multithreaded, only one thread will make MPI library calls at one time.
+  !> MPI_THREAD_MULTIPLE:   If the process is multithreaded, multiple threads may call MPI at once with no restrictions.
   integer, parameter, dimension(4) :: thread_options = [MPI_THREAD_SINGLE,     &
                                                         MPI_THREAD_FUNNELED,   &
                                                         MPI_THREAD_SERIALIZED, &
                                                         MPI_THREAD_MULTIPLE]
-
 
   ! TODO Consider making all data private
   ! Currently sufficient to only implement for data with derived types
@@ -149,54 +153,7 @@ contains
   ! Their API requires mpi_env_type, hence they must 
   ! be present in this file to avoid circular dependency.
   !----------------------------------------------------------------------------
-  !
-
-  ! CLEAN THIS TEXT UP
-
-  ! Binding Permutations 
-  !
-  ! * Option 1. Required in case the mpi bindings on the system are somewhat out-of-date
-  ! * Option 2. Don't implement as it makes no sense to use old bindings if f08 is available
-  ! * Option 3. Required as we cannot control how external libraries are written 
-  ! * Option 4. The ideal scenario that would have avoided the need for all this preprocessing
-  ! 
-  ! 1. MPILib20 mpif90   |  External lib mpi90
-  ! temporary_communicator%MPI_VAL = communicator
-  !
-  ! 2. MPILib20 mpif90   |  External lib mpif08                      
-  ! temporary_communicator%MPI_VAL = communicator%MPI_VAL
-  !
-  ! 3. MPILib20 mpif08   |  External lib mpi90
-  ! temporary_communicator%MPI_VAL = communicator
-  !  
-  ! 4. MPILib20 mpif08   |  External lib mpif08
-  ! temporary_communicator = communicator
-  !
-  !---------------------------------------------------------------------------- 
-
-  !> While the CMake option sets a preprocessor argument to determine which
-  !> mpi bindings to use, if we want to instantiate an MPI env instance
-  !> with an existing communicator, this could be from either bindings. 
-  !>
-  !> As such, this routine provides two optional arguments for an existing 
-  !> communicator, with the appropriate type. Only one should be supplied. 
-  !> which could be integer, or type(MPI_Comm).
-
-  !> Initialises the MPI execution environment for use with hybrid MPI/threaded applications.
-  !>
-  !> MPI_COMM_WORLD is duplicated.
-  !>
-  !> Threading options 
-  !> MPI_THREAD_SINGLE:     Only one thread will execute. Equivalent to calling MPI_init(ierror)
-  !> MPI_THREAD_FUNNELED:   If the process is multithreaded, only the thread that called
-  !>                        MPI_Init_thread will make MPI calls.
-  !> MPI_THREAD_SERIALIZED: If the process is multithreaded, only one thread will make MPI library
-  !>                        calls at one time.
-  !> MPI_THREAD_MULTIPLE:   If the process is multithreaded, multiple threads may call MPI at once
-  !>                        with no restrictions.
-
-
-  
+    
   !> Check that the provided threading support is enough to support the
   !> required threading support of the program. 
   !> 
@@ -404,11 +361,7 @@ contains
 
 
   !---------------------------------------------------------
-  ! Methods for initialisation and finalising
-  ! TODO 
-  ! Can write overloads for the communicator type - see my references (somewhere)
-  ! Could have written less code with runtime polymorphism
-  ! but this will execute faster
+  ! Methods for initialisation and finalisation 
   !---------------------------------------------------------
 
   !> Initialise an instance of the MPI environment.
