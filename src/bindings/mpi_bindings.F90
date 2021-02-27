@@ -19,6 +19,7 @@ module mpi_bindings
             MPI_FINALIZE,    &
             MPI_COMM_SIZE,   &
             MPI_GROUP_SIZE,  &
+            MPI_INITIALIZED, &
 
             ! Data types  
             MPI_COMM_WORLD,        &
@@ -57,6 +58,7 @@ module mpi_bindings
              MPI_FINALIZE,    &
              MPI_COMM_SIZE,   &
              MPI_GROUP_SIZE,  &
+             MPI_INITIALIZED, &
      
              ! Data types  
              MPI_COMM_WORLD, &
