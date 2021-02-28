@@ -6,8 +6,8 @@
 module mpi_bindings
 
     ! Default mpi bindings 
-    #ifdef MPI08 then
-        ! TODO MIght be easier to get rid of the use statement
+#ifdef MPI08
+        ! TODO Might be easier to get rid of the use statement
         use mpi_f08, only:   &
 
             ! Routines
@@ -19,16 +19,17 @@ module mpi_bindings
             MPI_FINALIZE,    &
             MPI_COMM_SIZE,   &
             MPI_GROUP_SIZE,  &
+            MPI_INITIALIZED, &
 
             ! Data types  
-            MPI_COMM_WORLD, &
-            MPI_THREAD_SINGLE
-            MPI_THREAD_FUNNELED
-            MPI_THREAD_SERIALIZED
-            MPI_THREAD_MULTIPLE
+            MPI_COMM_WORLD,        &
+            MPI_THREAD_SINGLE,     &
+            MPI_THREAD_FUNNELED,   &
+            MPI_THREAD_SERIALIZED, &
+            MPI_THREAD_MULTIPLE,   &
 
             ! Derived types 
-            MPI_comm,          &
+            MPI_Comm,          &
             MPI_Datatype,      &
             MPI_Errhandler,    &
             MPI_File,          &
@@ -41,11 +42,11 @@ module mpi_bindings
             MPI_Status
 
         implicit none
-        public 
+        public
 
     ! Support for older mpi bindings     
-    #else 
-        ! TODO MIght be easier to get rid of the use statement
+#else 
+        ! TODO Might be easier to get rid of the use statement
         use mpi, only:  &
 
              ! Routines
@@ -57,12 +58,13 @@ module mpi_bindings
              MPI_FINALIZE,    &
              MPI_COMM_SIZE,   &
              MPI_GROUP_SIZE,  &
+             MPI_INITIALIZED, &
      
              ! Data types  
              MPI_COMM_WORLD, &
-             MPI_THREAD_SINGLE
-             MPI_THREAD_FUNNELED
-             MPI_THREAD_SERIALIZED
+             MPI_THREAD_SINGLE, &
+             MPI_THREAD_FUNNELED, &
+             MPI_THREAD_SERIALIZED, &
              MPI_THREAD_MULTIPLE
   
         implicit none
@@ -75,8 +77,8 @@ module mpi_bindings
         ! https://github.com/hpc/cce-mpi-openmpi-1.7.1/blob/master/ompi/mpi/fortran/use-mpi-f08-desc/mpi-f08-types.f90
 
         ! TODO Document each type 
-        type MPI_comm
-            integer :: VALUE 
+        type MPI_Comm
+            integer :: MPI_VAL
         end type 
         type :: MPI_Datatype
             integer :: MPI_VAL
@@ -123,6 +125,6 @@ module mpi_bindings
            !integer(C_SIZE_T), private :: c_count
         end type MPI_Status
 
-    #endif 
+#endif 
 
 end module

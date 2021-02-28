@@ -63,10 +63,3 @@ string(REPLACE ";" " " FF_RELEASE "${FF_RELEASE}")
 # the compiler settings
 set(CMAKE_Fortran_FLAGS_DEBUG "${FF_DEBUG}")
 set(CMAKE_Fortran_FLAGS_RELEASE "${FF_RELEASE}")
-
-
-
-
-
-
-
