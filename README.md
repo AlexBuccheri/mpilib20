@@ -53,7 +53,13 @@ A simple test code is present in ROOT/test/init to check building and linking. T
 `make`    
 `mpirun -np 2 ./test.exe`
 
+### Unit Test Failures
 
+Problem:
+MPI returns `MPI_COMM_RANK Invalid Communicator`
+
+Solution
+Ensure Zofu has been built with the same flavour of MPI as MPILib20. 
 
 ## Bugs/To Dos
 
@@ -85,6 +91,26 @@ TODOS(Max)
  
 
 ## Directory structure
+
+MPILib20 can accept a communicator from both mpi and mpi_f08 bindings.
+Equally, internally, it can call mpi routines with both communicator type
+(and analogously for other strongly-typed data), faciliating whichever mpi library
+is available.
+
+However, internally, MPILib20 will always declare a communicator as MPI_Comm.
+To faciliate interacting with mpi's API, the ge
+
+In general, setters should always be in the internal type and getters should
+always be the type required to be used in the bare mpi calls 
+
+
+
+
+
+utilities
+
+
+
 errors_warnings
 	asserts.F90
 	errors_warnings.f90	
@@ -94,6 +120,10 @@ routines:
     each type and wrapped routine
 mpi_bindings:
    Wrappers for when mpif08 is not available 
+
+
+
+
 
 unit_tests
     Only test via the OO. That way we test the OO API and the underlying wrappers 	
