@@ -6,9 +6,9 @@
 module mpilib20_init_finalise
   use, intrinsic :: iso_fortran_env, only: error_unit
   use asserts, only: assert
-  use mpi_bindings, only : MPI_Comm, MPI_Group, MPI_COMM_DUP, MPI_COMM_RANK, ,
-                           MPI_COMM_SIZE, MPI_GROUP_SIZE, , MPI_THREAD_SINGLE, &
-                           MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED,  MPI_THREAD_MULTIPLE    
+  use mpi_bindings, only : MPI_Comm, MPI_Group, &
+                           MPI_COMM_RANK, MPI_COMM_SIZE, MPI_GROUP_SIZE, MPI_COMM_DUP, &
+                           MPI_THREAD_SINGLE, MPI_THREAD_FUNNELED, MPI_THREAD_SERIALIZED, MPI_THREAD_MULTIPLE    
   use internal_utils, only: duplicate 
   implicit none
   private 
@@ -61,18 +61,25 @@ module mpilib20_init_finalise
     procedure, public :: get_comm => get_communicator     !! Get the communicator 
     procedure, public :: get_group                        !! Get the group 
     procedure, public :: root_id                          !! Get root process id 
-    final,     public :: finalize => finalise_mpi_env     !! Terminate instance of MPI environment object
+    !procedure, public :: finalize => finalise_mpi_env     !! Terminate instance of MPI environment object
     
     !> Public API to initialisation routines 
-    generic, public :: init => init_mpi_env_from_comm_world, init_mpi_env_f08, init_mpi_env_f90, &
-      init_thread_mpi_env_from_comm_world, init_thread_mpi_env_f08, init_thread_mpi_env_f90
+    generic, public :: init => init_mpi_env_from_comm_world, init_mpi_env_f08, init_mpi_env_f90
+    generic, public :: init_thread => init_thread_mpi_env_from_comm_world, init_thread_mpi_env_f08, init_thread_mpi_env_f90
 
   end type mpi_env_type
+
+  interface mpilib20_init
+      module procedure :: mpilib20_init_from_comm_world, mpilib20_init_from_commf08, mpilib20_init_from_commf90
+  end interface
+
+  interface mpilib20_init_thread
+      module procedure :: mpilib20_init_thread_from_comm_world, mpilib20_init_thread_f08, mpilib20_init_thread_f90
+  end interface
 
   !> Exposed, free subroutines 
   public :: mpilib20_init, mpilib20_init_thread, mpilib20_finalize, mpilib20_query_thread
   
-
 contains
 
   ! ----------------------------------------------------
@@ -177,7 +184,7 @@ contains
 
     if(provided < required) then 
       call MPI_COMM_RANK(mpi_env%get_comm(), mpi_env%process, mpi_env%ierror)
-      if(process == mpi_env%root_id())then
+      if(mpi_env%process == mpi_env%root_id())then
          write(error_unit,'(1x,a,I1,a,I1)') 'threading support available, ',&
               provided, ', is less than is required, ', required
          call MPI_ABORT(mpi_env%get_comm(), errorcode, mpi_env%ierror)
@@ -203,8 +210,8 @@ contains
     !> Required level of threading support 
     integer,            intent(in)    :: required
     call mpilib20_query_thread(mpi_env, required, mpi_env%threading_support)
-    call MPI_INIT_THREAD(required, provided, mpi_env%ierror)
-    call mpi_env%init(MPI_COMM_WORLD, required)
+    call MPI_INIT_THREAD(required, mpi_env%threading_support, mpi_env%ierror)
+    call mpi_env%init_thread(MPI_COMM_WORLD, required)
   end subroutine mpilib20_init_thread 
 
   !> Terminates the MPI environment.
@@ -289,7 +296,7 @@ contains
 
     call MPI_COMM_RANK(mpi_env%get_comm(),   mpi_env%process,     mpi_env%ierror)
     call MPI_COMM_SIZE(mpi_env%get_comm(),   mpi_env%n_processes, mpi_env%ierror)
-    call MPI_GROUP_SIZE(mpi_env%get_comm(),  mpi_env%group_size,  mpi_env%ierror)
+    call MPI_GROUP_SIZE(mpi_env%get_group(),  mpi_env%group_size,  mpi_env%ierror)
 
   end subroutine mpilib20_init_from_commf90
 
@@ -375,7 +382,7 @@ contains
     call MPI_INITIALIZED(initialised, ierror)
     if (.not. initialised) then
       write(*,*) 'mpilib20_init must be called prior to calling this%init &
-                  without passing an communicator' 
+                 & without passing an communicator' 
       stop 1
     endif 
 
@@ -389,7 +396,7 @@ contains
     class(mpi_env_type), intent(inout) :: this 
     !> input communicator 
     type(MPI_Comm), intent(in) :: communicator
-    call mpilib20_init_from_commf08(mpi_env, communicator)
+    call mpilib20_init_from_commf08(this, communicator)
   end subroutine init_mpi_env_f08
 
   !> Initialise an instance of the MPI environment.
@@ -398,7 +405,7 @@ contains
     class(mpi_env_type), intent(inout) :: this 
     !> input communicator 
     integer, intent(in) :: communicator
-    call mpilib20_init_from_commf90(mpi_env, communicator)
+    call mpilib20_init_from_commf90(this, communicator)
   end subroutine init_mpi_env_f90
 
   !> Initialise an instance of the MPI environment with MPI_COMM_WORLD
@@ -415,7 +422,7 @@ contains
     call MPI_INITIALIZED(initialised, ierror)
     if (.not. initialised) then
       write(*,*) 'mpilib20_init must be called prior to calling this%init &
-                  without passing an communicator' 
+                  & without passing an communicator' 
       stop 1
     endif 
 
@@ -428,10 +435,10 @@ contains
     !> An instance of the MPI environment
     class(mpi_env_type), intent(inout) :: this 
     !> input communicator 
-    integer intent(in) :: communicator
+    type(MPI_Comm), intent(in) :: communicator
     !> Required level of threading support 
-    integer, intent(in)    :: required
-    call mpilib20_init_from_commf08(mpi_env, communicator, required)
+    integer, intent(in) :: required
+    call mpilib20_init_thread_from_commf08(this, communicator, required)
   end subroutine init_thread_mpi_env_f08
 
   !> Initialise an instance of the MPI environment with OMP support. 
@@ -442,15 +449,15 @@ contains
     integer, intent(in) :: communicator
     !> Required level of threading support 
     integer, intent(in) :: required
-    call mpilib20_init_from_commf90(mpi_env, communicator, required)
+    call mpilib20_init_thread_from_commf90(this, communicator, required)
   end subroutine init_thread_mpi_env_f90
 
   ! See this post: https://stackoverflow.com/questions/29038025/does-deallocating-a-fortran-derived-type-automatically-deallocate-member-arrays
   ! Implementation isn't clear though
-  subroutine finalise_mpi_env(self)
-    !> Instance of the MPI environment
-    class(mpi_env_type), intent(inout) :: self
-    deallocate(self) 
-  end subroutine finalise_mpi_env
+  !TODO (REIMPLEMENT)
+  ! subroutine finalise_mpi_env(this)
+  !   !> Instance of the MPI environment
+  !   class(mpi_env_type), intent(inout) :: this
+  ! end subroutine finalise_mpi_env
 
 end module mpilib20_init_finalise

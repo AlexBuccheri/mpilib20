@@ -20,6 +20,7 @@ module mpi_bindings
             MPI_COMM_SIZE,   &
             MPI_GROUP_SIZE,  &
             MPI_INITIALIZED, &
+            MPI_QUERY_THREAD, &
 
             ! Data types  
             MPI_COMM_WORLD,        &
@@ -59,6 +60,7 @@ module mpi_bindings
              MPI_COMM_SIZE,   &
              MPI_GROUP_SIZE,  &
              MPI_INITIALIZED, &
+             MPI_QUERY_THREAD, &
      
              ! Data types  
              MPI_COMM_WORLD, &
