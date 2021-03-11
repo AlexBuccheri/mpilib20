@@ -30,6 +30,18 @@ Additionally, one can also build with user-specified flags:
 
 although at present, these will append **not** overwrite the defaults.
 
+### Testing
+
+The path to the Zofu Unit Testing Library can also be passed:
+
+`... -DZUFU_PATH=path/to/zofu/install/dir` 
+
+allowing `findZofu.cmake` to link with "${ZOFU_PATH}/lib"
+
+### Documentation
+
+Pass `-DENABLE_DOCS=["FORD", "DOXYGEN"]` to enable documentation creation
+
 ### Installing
 
 To install *MPILib20*, the user can specify:
